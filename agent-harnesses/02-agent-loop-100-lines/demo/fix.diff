@@ -1,0 +1,13 @@
+diff --git a/invoice/totals.py b/invoice/totals.py
+index ef85eb0..5a9ac65 100644
+--- a/invoice/totals.py
++++ b/invoice/totals.py
+@@ -12,6 +12,6 @@ def subtotal(items):
+ def invoice_total(items, discount_code=None):
+     """Total for a list of (price, quantity) pairs, after discount and tax."""
+     amount = subtotal(items)
+-    percent_off = discounts.lookup(discount_code)
+-    amount = amount * (1 - percent_off / 100)
++    fraction_off = discounts.lookup(discount_code)  # already a fraction, e.g. 0.10
++    amount = amount * (1 - fraction_off)
+     return round(amount * (1 + TAX_RATE), 2)

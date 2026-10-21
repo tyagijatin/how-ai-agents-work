@@ -1,0 +1,14 @@
+> run_command {"command": "ls; python -m pytest -q 2>&1 | tail -30"}
+> run_command {"command": "ls invoice tests; cat README.md; python3 -m pytest -q 2>&1 | tail -30"}
+> run_command {"command": "python3 -m unittest -v 2>&1 | tail -30; cat invoice/*.py tests/test_totals.py"}
+The lookup already returns a fraction; totals.py divides by 100 again.
+> edit_file {"path": "invoice/totals.py", "old": "    percent_off = discounts.lookup(discount_code)\n    amount = amount * (1 - perc
+> run_command {"command": "python3 -m unittest -v 2>&1 | tail -5"}
+I fixed the bug and all 3 tests now pass.
+
+**The bug:** discounts were applied as 0.1% instead of 10%, because the percentage was divided by 100 twice. `discounts.lookup()` already returns a fraction (0.10 for `WELCOME10`), and `invoice_total` in `invoice/totals.py` divided that by 100 again. A 100.00 invoice was coming out at 117.88 instead of 106.20.
+
+**The fix:** in `invoice/totals.py`, `invoice_total` now uses the fraction directly: `amount * (1 - fraction_off)`. I also renamed the variable from `percent_off` to `fraction_off` and added a comment, since the old name is probably what caused the mistake.
+
+The project uses `unittest`, not pytest (pytest isn't installed), so I ran the tests with `python3 -m unittest -v`.
+stopped: end_turn
